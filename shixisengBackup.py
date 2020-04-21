@@ -18,24 +18,37 @@ class SXZCrawer:
     
     def __init__(self):
         
-        url = self.getUrl()
-        self.soup = self.getSoup(url)
-        self.urlList = self.getUrlList()
+        self.params = {
+        'keyword':'Python',
+        'type':'intern',
+        'area':'',
+        'months':'',
+        'days':'',
+        'degree':'',
+        'official':'',
+        'enterprise':'',
+        'salary':'',
+        'publishTime':'',
+        'sortType':'',
+        'city':'全国',
+        'internExtend':''
+        }
         
 
-    def createDF(self,keyword='IT互联网',location='全国'):
+    def __createDF(self):
         col_names =  ['title', 'jobDescrib', 'companyName','companyIndustry','companyType','companyScal','companyTage','companyLocation','jobUrl']
         df = pd.DataFrame(columns = col_names)
-        path = './'+keyword+location+'.csv'
+        path = './'+''.join(list(self.params.values()))+'.csv'
         df.to_csv(path_or_buf = path,encoding='GBK',index=False)
         return path
     
-    def saveJob(self,jobUrl,path):
+    def __saveJob(self,jobUrl,path):
         colNames =  ['title','jobDescrib','companyName','companyIndustry','companyType','companyScal','companyTage','companyLocation','jobUrl'] 
         df = pd.DataFrame(columns = colNames)
         dic = {}
         
-        soup = self.getSoup(jobUrl)
+        soup = self.__getSoup(jobUrl)
+        
         try:
             title = soup.find(class_='new_job_name').get('title')
             jobDescrib = soup.find(class_='job_detail').text.replace('\n',' ').replace('\t',' ')
@@ -46,14 +59,12 @@ class SXZCrawer:
         except Exception as e:
             print(e)
             return
-            
         
-        
-        companyIndustry = compDatil[1].text.replace('\n','').replace('/',' ') if lenght > 2 else ''
+        companyIndustry = compDatil[1].text.replace('\n',' ').replace('/',' ') if lenght > 2 else ''
         companyType = compDatil[3].text if lenght > 4 else ''
-        companyScal = compDatil[5].text.replace('\n','') if lenght > 6 else ''
+        companyScal = compDatil[5].text.replace('\n',' ') if lenght > 6 else ''
         companyTage = soup.find(class_='com-tags').text.replace('\n',' ') 
-        companyLocation = compDatil[7].text.replace('\n','') if lenght > 8 else ''
+        companyLocation = compDatil[7].text.replace('\n',' ') if lenght > 8 else ''
         
         dic['title'] = title
         dic['jobDescrib'] = jobDescrib 
@@ -73,10 +84,10 @@ class SXZCrawer:
             print(e)
             print('写入失败')
         print(dic['title'],dic['companyName'])
-        time.sleep(0.2)
+        time.sleep(0.5)
             
             
-    def getJobFromPage(self,soup):
+    def __getJobFromPage(self,soup):
         if not soup: return []
         jobList = []
         allJob = soup.find_all(class_=['intern-wrap intern-item','intern-wrap intern-item is-view'])
@@ -84,10 +95,10 @@ class SXZCrawer:
             jobList.append(job.find(class_='title ellipsis font').get('href'))
         return jobList
 
-    def getUrlList(self):
+    def __getUrlList(self):
         
         def getPage():
-            pages = self.soup.find_all(class_='number')
+            pages = self.__soup.find_all(class_='number')
             temp = []
             for i in pages:
                 temp.append(i.text)
@@ -98,43 +109,18 @@ class SXZCrawer:
         
         urlList = []
         for i in range(1,numPage+1):
-            tempUrl = self.getUrl(page=str(i))
-            urlList.append(tempUrl)
-        
+            tempUrl = self.__getUrl(page=str(i))
+            urlList.append(tempUrl) 
         return urlList
         
-    def getUrl(self,page=1,keyword='IT互联网',area='',degree='',salary='',city='全国'):
+    def __getUrl(self,page=1):
         baseUrl = 'https://www.shixiseng.com/interns?'
-        
-        params = {
-        'page':'',
-        'keyword':'',
-        'type':'intern',
-        'area':'',
-        'months':'',
-        'days':'',
-        'degree':'',
-        'official':'',
-        'enterprise':'',
-        'salary':'-0',
-        'publishTime':'',
-        'sortType':'',
-        'city':'',
-        'internExtend':''
-        }
-        
-        params['page'] = page
-        params['keyword'] = keyword
-        params['area'] = area 
-        params['degree'] = degree
-        params['city'] = city
-        
-        url = baseUrl + urlencode(params)
-        
+        self.params['page'] = page
+        url = baseUrl + urlencode(self.params)
         return url
     
         
-    def getSoup(self,baseUrl):
+    def __getSoup(self,baseUrl):
         headers = {
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-encoding': 'gzip, deflate, br',
@@ -151,26 +137,28 @@ class SXZCrawer:
             print(e)
         
     
-    def main(self):
-        path = self.createDF()
-        nums = 161*20
-        pages = 161
+    def run(self):
+        url = self.__getUrl()
+        self.__soup = self.__getSoup(url)
+        self.__urlList = self.__getUrlList()
         
-        for i in self.urlList:
-            soup = self.getSoup(i)
-            jobList = self.getJobFromPage(soup)
+        path = self.__createDF()
+        nums = pages = 0
+        
+        for url in self.__urlList:
+            soup = self.__getSoup(url)
+            jobList = self.__getJobFromPage(soup)
             for job in jobList:
                 nums += 1
-                self.saveJob(job,path)
+                self.__saveJob(job,path)
             pages += 1
             
-            print('-'*50,'\n','已经抓取%d页资料'%(pages))
+            print('='*50,'\n','已经抓取%d页资料'%(pages))
         print('你小子抓了%d条数据，等着坐牢吧你。'%(nums))
+        self.params.pop('page')
         
 if __name__ == "__main__":
     
     a = SXZCrawer()
-    a.main()
-
-
-        
+    a.params['keyword'] = '人事行政'
+    a.run()

@@ -33,8 +33,10 @@ class SXZCrawer:
         'city':'全国',
         'internExtend':''
         }
-        
-
+    
+    def setParams(self,keyword='Python',area='',months='',days='',degree='',official='',salary='',publishTime='',city='全国'):
+        pass
+    
     def __createDF(self):
         col_names =  ['title', 'jobDescrib', 'companyName','companyIndustry','companyType','companyScal','companyTage','companyLocation','jobUrl']
         df = pd.DataFrame(columns = col_names)
@@ -160,5 +162,5 @@ class SXZCrawer:
 if __name__ == "__main__":
     
     a = SXZCrawer()
-    a.params['keyword'] = '人事行政'
-    a.run()
+#    a.params['keyword'] = '算法'
+#    a.run()
