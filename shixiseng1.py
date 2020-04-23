@@ -18,7 +18,7 @@ from SXSperprocesing import SXSAnalyser
 class SXCCrawer:
     
     def __init__(self):
-        self.setParams(keyword='Python',area='',months='',days='',degree='',official='',salary='',publishTime='',city='全国')
+        self.setParams(keyword='Python',area='',months='',days='',degree='',official='',salary='',publishTime='',city=['全国'])
 
     def HELP(self):
         
@@ -57,7 +57,7 @@ class SXCCrawer:
         
         cityDic = {
                 'city':'工作城市',
-                '例子':'武汉/北京, downloader.setParams(city="武汉")'
+                '例子':'["武汉","北京"], downloader.setParams(city="武汉")'
                 
                 }
         
@@ -88,10 +88,10 @@ class SXCCrawer:
                 print(j+':'+i[j])
             print('\n')
         
-    def setParams(self,keyword='爬虫',area='',months='',days='',degree='',official='',salary='',publishTime='',city='全国'):
+    def setParams(self,keyword='爬虫',area='',months='',days='',degree='',official='',salary='-0',publishTime='',city='全国'):
         self.__params = {
+        'page':0,
         'keyword':'',
-        'city':'',
         'type':'intern',
         'area':'',
         'months':'',
@@ -101,7 +101,8 @@ class SXCCrawer:
         'enterprise':'',
         'salary':'',
         'publishTime':'',
-        'sortType':'',      
+        'sortType':'',    
+        'city':'',
         'internExtend':''
         }
         
@@ -151,13 +152,15 @@ class SXCCrawer:
         
         for i in self.__params:
             if i in self.__validation:
-                print(i + ':' + self.__params[i])
+                print(i + ':' + str(self.__params[i]))
+        print('\n')
 
         
     def __createDF(self):
         col_names =  ['title', 'jobDescrib', 'companyName','companyIndustry','companyType','companyScal','companyTage','companyLocation','jobUrl']
         df = pd.DataFrame(columns = col_names)
-        path = './'+''.join(list(self.__params.values()))+'.csv'
+        self.__params['city'] = self.__cities
+        path = './'+''.join([str(i) for i in self.__params.values()])+'.csv'
         df.to_csv(path_or_buf = path,encoding='GBK',index=False)
         return path
     
@@ -210,21 +213,21 @@ class SXCCrawer:
         if not soup: return []
         jobList = []
         allJob = soup.find_all(class_=['intern-wrap intern-item','intern-wrap intern-item is-view'])
-        for job in allJob:
+        for job in allJob:             
             jobList.append(job.find(class_='title ellipsis font').get('href'))
         return jobList
 
-    def __getUrlList(self):
+    def __getUrlList(self,soup):
         
-        def getPage():
-            pages = self.__soup.find_all(class_='number')
+        def getPage(soup):
+            pages = soup.find_all(class_='number')
             temp = []
             for i in pages:
                 temp.append(i.text)
             return max(map(int,temp))
         
-        numPage = getPage()
-        print('Number of pages:',numPage)
+        numPage = getPage(soup)
+        
         
         urlList = []
         for i in range(1,numPage+1):
@@ -244,7 +247,8 @@ class SXCCrawer:
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-encoding': 'gzip, deflate, br',
                 'accept-language': 'zh-CN,zh;q=0.9,en-AU;q=0.8,en;q=0.7',
-                'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36'
+                'user-agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.149 Safari/537.36',
+                'referer': 'https://www.shixiseng.com/interns?page=1&keyword=%E7%88%AC%E8%99%AB&type=intern&area=&months=&days=&degree=&official=&enterprise=&salary=-0&publishTime=&sortType=&city=%E5%8C%97%E4%BA%AC&internExtend='
                 }
         try:
            r = requests.get(baseUrl,headers=headers)
@@ -254,32 +258,42 @@ class SXCCrawer:
         except Exception as e:
             return None
             print(e)
-        
+            
+    def __getAllUrl(self):
+        self.__cities = self.__params['city']
+        self.__urlList = []
+        for city in self.__cities:
+            self.__params['city'] = city
+            url = self.__getUrl()
+            soup = self.__getSoup(url)
+            self.__urlList.extend(self.__getUrlList(soup))
+
     
     def run(self):
-        url = self.__getUrl()
-        self.__soup = self.__getSoup(url)
-        self.__urlList = self.__getUrlList()
         
-        path = self.__createDF()
+        self.__getAllUrl()  
+        self.path = self.__createDF()
         nums = pages = 0
         
+        print('number of page:',len(self.__urlList))
+        
+
         for url in self.__urlList:
             soup = self.__getSoup(url)
             jobList = self.__getJobFromPage(soup)
+
             for job in jobList:
                 nums += 1
-                self.__saveJob(job,path)
+                self.__saveJob(job,self.path)
             pages += 1
             
-            print('='*50,'第%d页数据已抓取完毕。'%(pages),'='*50,'\n')
+            print('第%d页数据已抓取完毕。'%(pages),'='*50,'\n')
 #        print('你小子抓了%d条数据，等着坐牢吧你。'%(nums))
         self.__params.pop('page')
-        return path
+        
+
 if __name__ == "__main__":
     
-    downLoader = SXCCrawer()
-    analisyer = SXSAnalyser('市场商务intern全国250.csv')
-    analisyer.drawCloud()
-#    a.params['keyword'] = '算法'
-#    a.run()
+    a = SXCCrawer()
+    a.setParams(keyword='爬虫',city = ['北京','上海','广州','深圳'])
+    a.run()

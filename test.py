@@ -8,9 +8,9 @@ import requests
 from urllib.parse import urlencode
 from bs4 import BeautifulSoup
 import re
-import chardet
-import pymysql
-import pandas as pd
+#import chardet
+#import pymysql
+#import pandas as pd
 
 def getUrl(page=1,keyword='',area='',degree='',salary='',city='全国'):
         baseUrl = 'https://www.shixiseng.com/interns?'
@@ -102,17 +102,24 @@ def saveJob(jobUrl,path):
     except Exception as e:
         print(e)
         print('写入失败')
-
+        
+    def getJobFromPage(soup):
+        if not soup: return []
+        jobList = []
+        allJob = soup.find_all(class_=['intern-wrap intern-item','intern-wrap intern-item is-view'])
+        print(allJob)
+#        for job in allJob:             
+#            jobList.append(job.find(class_='title ellipsis font').get('href'))
+#        return jobList
+    
 if __name__ == "__main__":
     
-    url = 'https://www.shixiseng.com/intern/inn_o1dwbjohjymt?pcm=pc_SearchList'
-    url2 = 'https://www.shixiseng.com/intern/inn_zauxxouq7ype?pcm=pc_SearchList'
-    keyword='Python'
-    location='全国'
-    path = createDF(keyword=keyword,location=location)
+#    url = 'https://www.shixiseng.com/interns?page=1&keyword=%E7%88%AC%E8%99%AB&type=intern&area=&months=&days=&degree=&official=&enterprise=&salary=-0&publishTime=&sortType=&city=%E5%8C%97%E4%BA%AC&internExtend='
+    url = 'https://www.shixiseng.com/interns?keyword=%E7%88%AC%E8%99%AB&city=%E5%8C%97%E4%BA%AC&type=intern&area=&months=&days=&degree=&official=&enterprise=&salary=&publishTime=&sortType=&internExtend=&page=2'
+    soup = getSoup(url)
+    jobList = getJobFromPage(soup)
     
-    saveJob(jobUrl=url,path=path)
-    
+    print(len(jobList))
     
     
     
