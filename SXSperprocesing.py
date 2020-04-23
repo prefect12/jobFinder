@@ -16,7 +16,12 @@ import re
 from gensim.models import Word2Vec
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+from sklearn.cluster import KMeans,MeanShift
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
+from numpy import linspace
+
+
 plt.rcParams['font.sans-serif']=['SimHei'] 
 plt.rcParams['axes.unicode_minus']=False
 
@@ -24,6 +29,7 @@ plt.rcParams['axes.unicode_minus']=False
 class SXSAnalyser:
     
     def __init__(self,path,userDict='./dict.txt',stopWords='./stopwords/sum.txt'):
+        self.__path = path
         self.__df = pd.read_csv(filepath_or_buffer=path,engine='python')
         jieba.load_userdict(userDict)
         stopWords = np.array(pd.read_csv(filepath_or_buffer=stopWords,header=None)).T.tolist()[0]
@@ -32,6 +38,14 @@ class SXSAnalyser:
         self.__RemoveStopWords(stopWords)
         self.__getWordFrequency()
         self.prapaerData()
+        
+    def __saveImag(self,plt,name):
+        path = './image/' + self.__path[2:-4] + name + '.jpg'
+        print(path)
+        if name != '3D':
+            plt.savefig(path,bbox_inches='tight')
+        else:
+            pass
         
     
     def prapaerData(self,select = 100,minCount = 10):
@@ -83,11 +97,17 @@ class SXSAnalyser:
     def draw2D(self):
         model = TSNE(n_components=2)
         result = model.fit_transform(self.__wordVector)
-        
+
+        fig = plt.figure(figsize=(20,12))
         for i,word in enumerate(self.__showWords):
                 plt.scatter(result[i,0],result[i,1])
                 plt.annotate(word,xy=(result[i,0],result[i,1]))
-        plt.show()
+        fig.show()
+        
+#调试代码，需要删除
+        self.result = result
+        
+        self.__saveImag(plt,'2D')
         
     def draw3D(self):
         model = PCA(n_components=3)
@@ -96,33 +116,62 @@ class SXSAnalyser:
         ax = plt.axes(projection='3d')
         fig = plt.figure()
         ax = Axes3D(fig)
-        
+
         for i,word in enumerate(self.__showWords):
                 ax.scatter3D(result[i,0],result[i,1],result[i,2])
                 ax.text(result[i,0],result[i,1],result[i,2],word)
+        self.__saveImag(ax,'3D')
     
     def drawCloud(self):
         wordList= ''
 
         word = np.array(self._wordStat['Word']).tolist()
         nums = np.array(self._wordStat['number']).tolist()
+        fig = plt.figure(figsize=(20,12))
+        
         for i in range(len(nums)):
             wordList += (word[i] + ' ')*nums[i]
     
         wordcloud = WordCloud(collocations=False,scale=8,font_path='simhei.ttf',background_color='white').generate(wordList)
         plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis("off")
-        plt.show()
+        fig.show()
+        self.__saveImag(plt,'wordCloud')
         
     
     def drawBar(self,nums=35):
         pltData = self._wordStat.head(nums)
+        fig = plt.figure(figsize=(20,12))
+
         plt.xlabel('关键字')
         plt.ylabel('出现次数')
         plt.title('招聘关键字分析')
         plt.xticks(rotation = 45)
         plt.bar(pltData['Word'],pltData['number'])
-    
+        fig.show()
+        self.__saveImag(plt,'BarChart')
                 
 if __name__ == "__main__":
     ana = SXSAnalyser(path='./算法intern全国45.csv')
+    
+    data = data.tolist()
+    #color lable
+    color = {0: 'blue', 1: 'red', 2: 'black', 3: 'green'}
+
+#类聚
+    model = MeanShift(2)
+    lable = model.fit_predict(result)
+    
+    
+#color
+    cm_subsection = linspace(0,1,8)
+    colors = [ cm.rainbow (x) for x in cm_subsection]
+    for i, color in enumerate(colors):
+        plt.axhline(i, color=color)
+        
+    plt.ylabel('Line Number')
+    plt.show()
+    
+     for i in range(len(data)):
+        plt.scatter(data[i][0],data[i][1],color = colors[km[i]])
+    plt.show()
