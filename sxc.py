@@ -56,7 +56,7 @@ class SXCCrawer:
         
         cityDic = {
                 'city':'工作城市',
-                '例子':'["武汉","北京"], downloader.setParams(city="武汉")'
+                '例子':'["武汉","北京"]'
                 
                 }
         
