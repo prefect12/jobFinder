@@ -1,18 +1,29 @@
-# Find job
+# 实习僧找工作
 根据关键字抓取对应岗位信息
 
 根据岗位描述找到某岗位所需的条件
 
-## Getting Started
+## 开始
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+打开run.py,安装好依赖库后可以直接运行
 
-### Prerequisites
-
-What things you need to install the software and how to install them
 
 ```
-Give examples
+from sxc import SXCCrawer  
+from processor import SXSAnalyser
+
+cra = SXCCrawer()
+
+#调用参数助手
+cra.HELP()
+
+#设置城市和关键字参数
+city = ['武汉','北京']
+cra.setParams(keyword='算法',city=city)
+
+#csv文件会保存在根目录
+cra.run()
+
 ```
 
 ### Installing
