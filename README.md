@@ -1,4 +1,4 @@
-# 实习僧找工作
+# 岗位分析
 根据关键字抓取对应岗位信息
 
 根据岗位描述找到某岗位所需的条件
@@ -8,6 +8,7 @@
 打开run.py,安装好依赖库后可以直接运行
 
 
+## 数据下载
 ```
 from sxc import SXCCrawer  
 from processor import SXSAnalyser
@@ -26,14 +27,20 @@ cra.run()
 
 ```
 
-### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+## 数据分析
 
 ```
-Give the example
+ana = SXSAnalyser(path ='./算法intern全国45.csv')
+
+#绘制词云图
+ana.drawCloud()
+
+#绘制2D类聚词向量图
+#ana.draw2D()
+
+#绘制柱状图
+ana.drawBar()
 ```
 
 And repeat
