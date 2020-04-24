@@ -10,9 +10,9 @@ import pandas as pd
 import numpy as np
 import jieba
 from wordcloud import WordCloud
-from collections import Counter
 import matplotlib.pyplot as plt
 import re
+import os
 from gensim.models import Word2Vec
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -28,7 +28,10 @@ plt.rcParams['axes.unicode_minus']=False
 
 class SXSAnalyser:
     
-    def __init__(self,path,userDict='./dict.txt',stopWords='./stopwords/sum.txt'):
+    def __init__(self,path,userDict='./stopwords/dict.txt',stopWords='./stopwords/sum.txt'):
+        if not os.path.exists('./image'):
+                os.makedirs('./image')
+        
         self.__path = path
         self.__df = pd.read_csv(filepath_or_buffer=path,engine='python')
         jieba.load_userdict(userDict)
@@ -51,7 +54,6 @@ class SXSAnalyser:
     def prapaerData(self,select = 100,minCount = 10):
         self.__showWords = self.__wordsSelector(select,minCount)
         self.__wordVector = self.__getwordVec(self.__showWords)
-        
         
     #数据去重
     def __DeRedundancy(self):
@@ -98,20 +100,19 @@ class SXSAnalyser:
         model = TSNE(n_components=2)
         result = model.fit_transform(self.__wordVector)
 
-        model = MeanShift(2)
+        model = KMeans(5)
         lable = model.fit_predict(result)
-        cm_subsection = linspace(0,1,10)
+        cm_subsection = linspace(0,1,5)
         colors = [cm.rainbow(x) for x in cm_subsection]
         random.shuffle(colors)
+
 
         fig = plt.figure(figsize=(20,12))
         for i,word in enumerate(self.__showWords):
                 plt.scatter(result[i,0],result[i,1],color = colors[lable[i]])
                 plt.annotate(word,xy=(result[i,0],result[i,1]))
         fig.show()
-        
-#调试代码，需要删除
-        self.result = result
+
         
         self.__saveImag(plt,'2D')
         
