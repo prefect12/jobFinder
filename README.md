@@ -5,7 +5,7 @@
 
 ## 开始
 
-打开run.py,安装好依赖库后可以直接运行
+打开run.py,可以直接运行
 
 
 ## 数据下载
@@ -22,7 +22,7 @@ cra.HELP()
 city = ['武汉','北京']
 cra.setParams(keyword='算法',city=city)
 
-#csv文件会保存在根目录
+#开始下载,csv文件会保存在根目录
 cra.run()
 
 ```
@@ -52,14 +52,16 @@ ana.drawBar()
 
 词云图
 ![image](https://github.com/prefect12/jobFinder/blob/master/image/%E7%AE%97%E6%B3%95intern%E5%85%A8%E5%9B%BD45wordCloud.jpg)
-（点击图片查看大图）<br/>
-
+（点击图片查看大图）<br>
+<br>
+<br>
 
 
 排名靠前的关键字
 ![image](https://github.com/prefect12/jobFinder/blob/master/image/%E7%AE%97%E6%B3%95intern%E5%85%A8%E5%9B%BD45BarChart.jpg)
-（点击图片查看大图）<br/>
-
+（点击图片查看大图）<br>
+<br>
+<br>
 
 
 关键字之间的关系
