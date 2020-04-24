@@ -20,7 +20,7 @@ from sklearn.cluster import KMeans,MeanShift
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from numpy import linspace
-
+import random
 
 plt.rcParams['font.sans-serif']=['SimHei'] 
 plt.rcParams['axes.unicode_minus']=False
@@ -98,9 +98,15 @@ class SXSAnalyser:
         model = TSNE(n_components=2)
         result = model.fit_transform(self.__wordVector)
 
+        model = MeanShift(2)
+        lable = model.fit_predict(result)
+        cm_subsection = linspace(0,1,10)
+        colors = [cm.rainbow(x) for x in cm_subsection]
+        random.shuffle(colors)
+
         fig = plt.figure(figsize=(20,12))
         for i,word in enumerate(self.__showWords):
-                plt.scatter(result[i,0],result[i,1])
+                plt.scatter(result[i,0],result[i,1],color = colors[lable[i]])
                 plt.annotate(word,xy=(result[i,0],result[i,1]))
         fig.show()
         
@@ -154,24 +160,3 @@ class SXSAnalyser:
 if __name__ == "__main__":
     ana = SXSAnalyser(path='./算法intern全国45.csv')
     
-    data = data.tolist()
-    #color lable
-    color = {0: 'blue', 1: 'red', 2: 'black', 3: 'green'}
-
-#类聚
-    model = MeanShift(2)
-    lable = model.fit_predict(result)
-    
-    
-#color
-    cm_subsection = linspace(0,1,8)
-    colors = [ cm.rainbow (x) for x in cm_subsection]
-    for i, color in enumerate(colors):
-        plt.axhline(i, color=color)
-        
-    plt.ylabel('Line Number')
-    plt.show()
-    
-     for i in range(len(data)):
-        plt.scatter(data[i][0],data[i][1],color = colors[km[i]])
-    plt.show()
