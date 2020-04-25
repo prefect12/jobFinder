@@ -17,15 +17,15 @@ from bs4 import BeautifulSoup
 import re
 import pandas as pd
 
-
+requests.adapters.DEFAULT_RETRIES = 5  
 warnings.filterwarnings("ignore")
 
 class Job51Crawer:
     def __init__(self):
-        self.setParams(keyword='算法',city=['全国'])
+        self.setParams()
         
         
-    def setParams(self,keyword,city):
+    def setParams(self,keyword='算法',city=['全国']):
         self.__params = {
                 'keyword':keyword,
                 'city':city
@@ -123,7 +123,13 @@ class Job51Crawer:
         Industry = []
         for i in range(len(deep_url)):
             print(job_name[i],company_name[i])
-            web_test = requests.get(deep_url[i], headers=headers)
+            try:
+                web_test = requests.get(deep_url[i], headers=headers)
+            except Exception as e:
+                print(e)
+                time.sleep(60)
+                return
+            
             web_test.encoding = "gbk"
             dom_test = etree.HTML(web_test.text)
             # 7、爬取经验、学历信息，先合在一个字段里面，以后再做数据清洗。命名为random_all
