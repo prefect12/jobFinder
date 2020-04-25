@@ -160,5 +160,5 @@ class SXSAnalyser:
         self.__saveImag(plt,'BarChart')
                 
 if __name__ == "__main__":
-    ana = SXSAnalyser(path='./算法intern全国45.csv')
+    ana = SXSAnalyser(path="./算法['全国'].csv")
     

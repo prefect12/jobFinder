@@ -14,8 +14,8 @@ cra = SXCCrawer()
 cra.HELP()
 
 #设置参数，开始爬取
-city = ['武汉','北京']
-cra.setParams(keyword='算法',city=city)
+
+cra.setParams(keyword='爬虫',city = ['北京','上海','广州','深圳'])
 cra.run()
 
 #获取路径

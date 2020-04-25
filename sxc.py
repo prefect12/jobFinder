@@ -17,7 +17,7 @@ import time
 class SXCCrawer:
     
     def __init__(self):
-        self.setParams(keyword='Python',area='',months='',days='',degree='',official='',salary='',publishTime='',city=['全国'])
+        self.setParams(keyword='爬虫',area='',months='',days='',degree='',official='',salary='',publishTime='',city=['全国'])
 
     def HELP(self):
         
@@ -87,7 +87,7 @@ class SXCCrawer:
                 print(j+':'+i[j])
             print('\n')
         
-    def setParams(self,keyword='爬虫',area='',months='',days='',degree='',official='',salary='-0',publishTime='',city='全国'):
+    def setParams(self,keyword='',area='',months='',days='',degree='',official='',salary='-0',publishTime='',city=''):
         self.__params = {
         'page':0,
         'keyword':'',
@@ -255,8 +255,9 @@ class SXCCrawer:
            content = BeautifulSoup(r.text,"html.parser")
            return content
         except Exception as e:
-            return None
             print(e)
+            return None
+            
             
     def __getAllUrl(self):
         self.__cities = self.__params['city']
