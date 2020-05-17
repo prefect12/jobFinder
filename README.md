@@ -22,8 +22,8 @@ cra.HELP()
 city = ['武汉','北京']
 cra.setParams(keyword='算法',city=city)
 
-#开始下载,csv文件会保存在根目录
-cra.run()
+#开始下载,csv文件会保存在根目录,文件路径会被返回
+path = cra.run()
 
 ```
 
@@ -31,7 +31,8 @@ cra.run()
 ## 数据分析
 
 ```
-ana = SXSAnalyser(path ='./算法intern全国45.csv')
+path ='./算法intern全国45.csv'
+ana = SXSAnalyser(path = path)
 
 #minCount，词频阈值，低于数字的就不会被统计，默认10
 #select, 绘图词数值，默认100
